@@ -1,0 +1,65 @@
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_signed.all;
+use ieee.std_logic_arith.all;
+use work.all;
+
+entity ALU_gen is
+	generic (n: integer:=4);   -- this 4 is the 'default' value. generic map during instatiation will override this number
+	port (
+	  reset : in std_logic;
+		op: in std_logic_vector (2 downto 0);
+		A : in std_logic_vector (n-1 downto 0);
+		B : in std_logic_vector (n-1 downto 0);
+		z_flag: out std_logic;
+		n_flag: out std_logic;
+		o_flag: out std_logic;
+		sum : out std_logic_vector (n-1 downto 0)
+		);
+end ALU_gen;
+
+architecture behavioral of ALU_gen is
+	signal Y:std_logic_vector(N-1 downto 0);
+begin
+process(A, B, op,reset)
+begin
+
+	case op is 		
+		when "000" => Y<=A+B;
+		when "001" => Y<=A-B;
+		when "010" => Y<=A and B;
+		when "011" => Y<=A or B;
+		when "100" => Y<=A xor B;
+		when "101" => Y<=not(A);
+		when "110" => Y<=A;
+		when others => Y<=conv_std_logic_vector(0,N);
+	end case;
+	
+	if(unsigned(Y) = 0) then
+		z_flag <= '1';
+	elsif (signed(Y) < 0) then
+		n_flag <= '1';
+	else
+		z_flag <= '0';
+		n_flag <= '0';
+	end if;
+	
+	case op&Y(N-1)&A(N-1)&B(N-1) is 		
+		when "000011" => O_Flag<='1';
+		when "000100" => O_Flag<='1';
+		when "001010" => O_Flag<='1';
+		when "001101" => O_Flag<='1';
+		when others => O_Flag<='0';
+	end case;
+
+if (reset = '1') then
+    O_Flag<='0';
+  		z_flag <= '0';
+		n_flag <= '0';
+    Y<=conv_std_logic_vector(0,N);
+end if;
+end process;
+	sum <= Y;		
+		
+end architecture;
