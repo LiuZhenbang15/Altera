@@ -1,0 +1,74 @@
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_signed.all;
+use ieee.std_logic_arith.all;
+use ieee.numeric_std.all;
+use work.all;
+
+Entity ALU_tb is
+	generic (n: integer:=4);
+end ALU_tb;
+
+
+architecture behavioral of ALU_tb is
+
+component ALU_gen is
+	generic (n: integer:=4);   -- this 4 is the 'default' value. generic map during instatiation will override this number
+	port (
+	  reset: in std_logic;
+		op: in std_logic_vector (2 downto 0);
+		A : in std_logic_vector (n-1 downto 0);
+		B : in std_logic_vector (n-1 downto 0);
+		z_flag: out std_logic;
+		n_flag: out std_logic;
+		o_flag: out std_logic;
+		sum : out std_logic_vector (n-1 downto 0)
+		);
+end component;
+
+--inputs
+signal reset: std_logic;
+signal op_num: std_logic_vector (2 downto 0);
+signal A_num: std_logic_vector (n-1 downto 0);
+signal B_num: std_logic_vector (n-1 downto 0);
+
+--outputs
+
+signal zflag: std_logic;
+signal nflag : std_logic;
+signal oflag : std_logic;
+signal sum_num: std_logic_vector (n-1 downto 0);
+
+begin
+
+DUT: ALU_gen
+	generic map (n => n)
+	port map(
+	  reset => reset,
+		op => op_num,	
+		A => A_num,
+		B => B_num,
+		z_flag => zflag,
+		n_flag => nflag,
+		o_flag => oflag,
+		sum => sum_num
+		);
+
+process
+	begin
+	reset <='0';
+	for p in 0 to 7 loop
+	op_num <= std_logic_vector(to_UNSIGNED(p,3));
+		for m in 0 to 15 loop
+		A_num <= std_logic_vector(to_UNSIGNED(m,4));
+			for n in 0 to 15 loop
+			B_num <= std_logic_vector(to_UNSIGNED(n,4));
+
+	wait for 10 ns;
+	end loop; end loop; end loop;
+end process;
+
+
+
+end architecture;
